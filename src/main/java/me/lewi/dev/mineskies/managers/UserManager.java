@@ -1,5 +1,6 @@
 package me.lewi.dev.mineskies.managers;
 
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import me.lewi.dev.mineskies.Core;
@@ -10,32 +11,32 @@ import org.bson.Document;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class MongoManager {
+public class UserManager {
 
-    private Core core;
+    private static MongoCollection players;
 
-    public MongoManager(Core core) {
-        this.core = core;
+    public UserManager(Core core) {
+        this.players = core.getPlayers();
     }
 
-    public CompletableFuture<User> load(UUID uuid, String name) {
+    public static CompletableFuture<User> load(UUID uuid, String name) {
             return CompletableFuture.supplyAsync(() -> {
-                Document document = (Document) core.getPlayers().find(Filters.eq("uuid", uuid)).first();
+                Document document = (Document) players.find(Filters.eq("uuid", uuid)).first();
                 if (document == null) return new User(uuid, name);
                 User user = new User().load(document);
                 return user;
             });
     }
 
-    public void save(User user) {
+    public static void save(Document document) {
         CompletableFuture.runAsync(() -> {
-            core.getPlayers().replaceOne(Filters.eq("uuid", user.getUuid()), user.save(), new ReplaceOptions().upsert(true));
+            players.replaceOne(Filters.eq("uuid", document.get("uuid", UUID.class)), document, new ReplaceOptions().upsert(true));
         });
     }
 
-    public void delete(User user) {
+    public static void delete(User user) {
         CompletableFuture.runAsync(() -> {
-            core.getPlayers().deleteOne(Filters.eq("uuid", user.getUuid()));
+            players.deleteOne(Filters.eq("uuid", user.getUuid()));
         });
     }
 

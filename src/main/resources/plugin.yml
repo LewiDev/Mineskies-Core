@@ -1,0 +1,12 @@
+name: MineskiesCore
+version: '${project.version}'
+main: me.lewi.dev.mineskies.Core
+api-version: 1.19
+authors: [ LewiDev ]
+commands:
+  crystals:
+    aliases: crystal
+  balance:
+    aliases: bal
+  minecoins:
+    aliases: minecoin, mc

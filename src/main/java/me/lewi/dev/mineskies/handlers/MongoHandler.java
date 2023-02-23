@@ -18,6 +18,8 @@ public class MongoHandler {
     private final ConnectionString uri;
     private MongoClient client;
     @Getter
+    private MongoCollection<Document> notes;
+    @Getter
     private MongoCollection<Document> players;
 
     public MongoHandler(Core core) {
@@ -29,6 +31,7 @@ public class MongoHandler {
         Logger.getLogger("com.mongodb").setLevel(Level.ALL);
         this.client = MongoClients.create(this.uri);
         this.players = client.getDatabase("core").getCollection("players");
+        this.notes = client.getDatabase("core").getCollection("notes");
         core.getLogger().info(String.format("[Mongo] Successfully connected to %s database", uri.getDatabase()));
     }
 
