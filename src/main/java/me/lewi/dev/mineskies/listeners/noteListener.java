@@ -37,7 +37,7 @@ public class noteListener implements Listener {
         if (!(e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)) return;
         if (!(e.getItem().getType() == Material.PAPER)) return;
         if ((e.getItem().getItemMeta().getPersistentDataContainer().isEmpty())) return;
-        User user = UserManager.load(e.getPlayer().getUniqueId(), e.getPlayer().getName()).join();
+        User user = UserManager.getInstance(core).load(e.getPlayer().getUniqueId(), e.getPlayer().getName()).join();
         if (e.getItem().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(core, "uuid"), PersistentDataType.STRING)) {
             int amount = e.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(core, "amount"), PersistentDataType.INTEGER);
             if(WithdrawTypes.valueOf(e.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(core, "type"), PersistentDataType.STRING)) == WithdrawTypes.CRYSTALS) {
@@ -54,7 +54,7 @@ public class noteListener implements Listener {
             e.getPlayer().sendMessage(ChatColor.RED + "Invalid Note!");
         }
         e.getPlayer().getInventory().removeItem(e.getItem());
-        UserManager.save(user.save());
+        UserManager.getInstance(core).save(user.save());
     }
 
 

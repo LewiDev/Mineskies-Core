@@ -24,7 +24,7 @@ public class CrystalCommand implements CommandExecutor {
         if (!(sender instanceof Player)) return false;
         Player player = (Player) sender;
         if (args.length == 0) {
-            player.sendMessage(ChatColor.GRAY + "You have " + ChatColor.LIGHT_PURPLE + CrystalsUtility.getCrystals(player) + ChatColor.GRAY + " crystals.");
+            player.sendMessage(ChatColor.GRAY + "You have " + ChatColor.LIGHT_PURPLE + CrystalsUtility.getCrystals(core, player) + ChatColor.GRAY + " crystals.");
 
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("withdraw")) {

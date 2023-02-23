@@ -13,13 +13,25 @@ import java.util.concurrent.CompletableFuture;
 
 public class UserManager {
 
-    private static MongoCollection players;
+    private static UserManager instance;
 
-    public UserManager(Core core) {
-        this.players = core.getPlayers();
+    private static MongoCollection<Document> players;
+
+    private UserManager() {
     }
 
-    public static CompletableFuture<User> load(UUID uuid, String name) {
+    public static UserManager getInstance(Core core) {
+        if(instance == null) {
+            instance = new UserManager();
+            players = core.getNotes();
+            return instance;
+
+        }
+        return instance;
+
+    }
+
+    public CompletableFuture<User> load(UUID uuid, String name) {
             return CompletableFuture.supplyAsync(() -> {
                 Document document = (Document) players.find(Filters.eq("uuid", uuid)).first();
                 if (document == null) return new User(uuid, name);
@@ -28,13 +40,13 @@ public class UserManager {
             });
     }
 
-    public static void save(Document document) {
+    public void save(Document document) {
         CompletableFuture.runAsync(() -> {
             players.replaceOne(Filters.eq("uuid", document.get("uuid", UUID.class)), document, new ReplaceOptions().upsert(true));
         });
     }
 
-    public static void delete(User user) {
+    public void delete(User user) {
         CompletableFuture.runAsync(() -> {
             players.deleteOne(Filters.eq("uuid", user.getUuid()));
         });

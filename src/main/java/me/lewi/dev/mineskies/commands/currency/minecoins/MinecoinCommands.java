@@ -21,7 +21,7 @@ public class MinecoinCommands implements CommandExecutor {
         if (!(sender instanceof Player)) return false;
         Player player = (Player) sender;
         if (args.length == 0) {
-            player.sendMessage(ChatColor.GRAY + "You have " + ChatColor.AQUA + MinecoinUtility.getMinecoins(player) + ChatColor.GRAY + " minecoins.");
+            player.sendMessage(ChatColor.GRAY + "You have " + ChatColor.AQUA + MinecoinUtility.getMinecoins(core, player) + ChatColor.GRAY + " minecoins.");
 
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("withdraw")) {

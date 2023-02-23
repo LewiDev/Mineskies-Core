@@ -15,13 +15,25 @@ import java.util.concurrent.CompletableFuture;
 
 public class WithdrawManager {
 
-    private static MongoCollection notes;
+    private static WithdrawManager instance;
 
-    public WithdrawManager(Core core) {
-        this.notes = core.getNotes();
+    private static MongoCollection<Document> notes;
+
+    private WithdrawManager() {
     }
 
-    public static CompletableFuture<Withdraw> load(UUID uuid, int amount, WithdrawTypes type) {
+    public static WithdrawManager getInstance(Core core) {
+        if(instance == null) {
+            instance = new WithdrawManager();
+            notes = core.getNotes();
+            return instance;
+
+        }
+        return instance;
+
+    }
+
+    public CompletableFuture<Withdraw> load(UUID uuid, int amount, WithdrawTypes type) {
         return CompletableFuture.supplyAsync(() -> {
             Document document = (Document) notes.find(Filters.eq("uuid", uuid)).first();
             if (document == null) return new Withdraw(uuid, amount, type);
@@ -30,13 +42,13 @@ public class WithdrawManager {
         });
     }
 
-    public static void save(Document document) {
+    public void save(Document document) {
         CompletableFuture.runAsync(() -> {
             notes.replaceOne(Filters.eq("uuid", document.get("uuid", UUID.class)), document, new ReplaceOptions().upsert(true));
         });
     }
 
-    public static void delete(User user) {
+    public void delete(User user) {
         CompletableFuture.runAsync(() -> {
             notes.deleteOne(Filters.eq("uuid", user.getUuid()));
         });

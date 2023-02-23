@@ -21,50 +21,50 @@ import java.util.concurrent.CompletableFuture;
 
 public class MinecoinUtility {
 
-    public static void addMinecoins(Player player, int amount) {
-        CompletableFuture<User> user = UserManager.load(player.getUniqueId(), player.getName());
+    public static void addMinecoins(Core core, Player player, int amount) {
+        CompletableFuture<User> user = UserManager.getInstance(core).load(player.getUniqueId(), player.getName());
         user.thenAccept((u) -> {
             int newcoins = u.getMinecoins() + amount;
             u.setMinecoins(newcoins);
-            UserManager.save(u.save());
+            UserManager.getInstance(core).save(u.save());
         });
     }
 
-    public static void removeMinecoins(Player player, int amount) {
-        CompletableFuture<User> user = UserManager.load(player.getUniqueId(), player.getName());
+    public static void removeMinecoins(Core core, Player player, int amount) {
+        CompletableFuture<User> user = UserManager.getInstance(core).load(player.getUniqueId(), player.getName());
         user.thenAccept((u) -> {
             int newcoins = u.getMinecoins() - amount;
             u.setMinecoins(newcoins);
-            UserManager.save(u.save());
+            UserManager.getInstance(core).save(u.save());
         });
     }
 
-    public static int getMinecoins(Player player) {
-        CompletableFuture<User> user = UserManager.load(player.getUniqueId(), player.getName());
+    public static int getMinecoins(Core core, Player player) {
+        CompletableFuture<User> user = UserManager.getInstance(core).load(player.getUniqueId(), player.getName());
         return user.thenApply((u) -> u.getMinecoins()).join();
     }
 
-    public static void resetMinecoins(Player player) {
-        CompletableFuture<User> user = UserManager.load(player.getUniqueId(), player.getName());
+    public static void resetMinecoins(Core core, Player player) {
+        CompletableFuture<User> user = UserManager.getInstance(core).load(player.getUniqueId(), player.getName());
         user.thenAccept((u) -> {
             u.setMinecoins(0);
-            UserManager.save(u.save());
+            UserManager.getInstance(core).save(u.save());
         });
     }
 
     public static ItemStack withdrawMinecoins(Core core, Player player, int amount) {
-        int minecoins = getMinecoins(player);
+        int minecoins = getMinecoins(core, player);
         if(minecoins < amount) return null;
         UUID uuid = UUID.randomUUID();
 
         Withdraw withdraw = new Withdraw(uuid, amount, WithdrawTypes.MINECOINS);
-        WithdrawManager.save(withdraw.save());
+        WithdrawManager.getInstance(core).save(withdraw.save());
 
-        removeMinecoins(player, amount);
+        removeMinecoins(core, player, amount);
 
         ItemStack note = new ItemStack(Material.PAPER, 1);
         ItemMeta meta = note.getItemMeta();
-        meta.setDisplayName(ChatColor.AQUA + "Minecoin Note");
+        meta.setDisplayName(ChatColor.AQUA + ChatColor.BOLD.toString() + "Minecoin Note");
         meta.getPersistentDataContainer().set(new NamespacedKey(core, "uuid"), PersistentDataType.STRING, uuid.toString());
         meta.getPersistentDataContainer().set(new NamespacedKey(core, "type"), PersistentDataType.STRING, WithdrawTypes.MINECOINS.name());
         meta.getPersistentDataContainer().set(new NamespacedKey(core, "amount"), PersistentDataType.INTEGER, amount);

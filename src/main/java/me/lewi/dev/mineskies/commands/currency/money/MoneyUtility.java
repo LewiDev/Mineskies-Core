@@ -21,57 +21,57 @@ import java.util.concurrent.CompletableFuture;
 
 public class MoneyUtility {
 
-    public static void addMoney(Player player, int amount) {
-        CompletableFuture<User> user = UserManager.load(player.getUniqueId(), player.getName());
+    public static void addMoney(Core core, Player player, int amount) {
+        CompletableFuture<User> user = UserManager.getInstance(core).load(player.getUniqueId(), player.getName());
         user.thenAccept((u) -> {
             int newMoney = u.getMoney() + amount;
             u.setMoney(newMoney);
-            UserManager.save(u.save());
+            UserManager.getInstance(core).save(u.save());
         });
     }
 
-    public static void removeMoney(Player player, int amount) {
-        CompletableFuture<User> user = UserManager.load(player.getUniqueId(), player.getName());
+    public static void removeMoney(Core core, Player player, int amount) {
+        CompletableFuture<User> user = UserManager.getInstance(core).load(player.getUniqueId(), player.getName());
         user.thenAccept((u) -> {
             int newMoney = u.getMoney() - amount;
             u.setMoney(newMoney);
-            UserManager.save(u.save());
+            UserManager.getInstance(core).save(u.save());
         });
     }
 
-    public static int getMoney(Player player) {
-        CompletableFuture<User> user = UserManager.load(player.getUniqueId(), player.getName());
+    public static int getMoney(Core core, Player player) {
+        CompletableFuture<User> user = UserManager.getInstance(core).load(player.getUniqueId(), player.getName());
         return user.thenApply((u) -> u.getMoney()).join();
     }
 
-    public static void resetMoney(Player player) {
-        CompletableFuture<User> user = UserManager.load(player.getUniqueId(), player.getName());
+    public static void resetMoney(Core core, Player player) {
+        CompletableFuture<User> user = UserManager.getInstance(core).load(player.getUniqueId(), player.getName());
         user.thenAccept((u) -> {
             u.setMoney(0);
-            UserManager.save(u.save());
+            UserManager.getInstance(core).save(u.save());
         });
     }
 
     public static ItemStack withdrawMoney(Core core, Player player, int amount) {
-        int money = getMoney(player);
+        int money = getMoney(core, player);
         if(money < amount) return null;
         UUID uuid = UUID.randomUUID();
 
         Withdraw withdraw = new Withdraw(uuid, amount, WithdrawTypes.MONEY);
-        WithdrawManager.save(withdraw.save());
+        WithdrawManager.getInstance(core).save(withdraw.save());
 
-        removeMoney(player, amount);
+        removeMoney(core, player, amount);
 
         ItemStack note = new ItemStack(Material.PAPER, 1);
         ItemMeta meta = note.getItemMeta();
-        meta.setDisplayName(ChatColor.AQUA + "Money Note");
+        meta.setDisplayName(ChatColor.GREEN.toString() + ChatColor.BOLD + "Money Note");
         meta.getPersistentDataContainer().set(new NamespacedKey(core, "uuid"), PersistentDataType.STRING, uuid.toString());
         meta.getPersistentDataContainer().set(new NamespacedKey(core, "type"), PersistentDataType.STRING, WithdrawTypes.MONEY.name());
         meta.getPersistentDataContainer().set(new NamespacedKey(core, "amount"), PersistentDataType.INTEGER, amount);
         ArrayList<String> lore = new ArrayList<>();
         lore.add("");
-        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Amount: " + ChatColor.AQUA + amount);
-        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Withdrawn by: " + ChatColor.AQUA + player.getName());
+        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Amount: " + ChatColor.GREEN + amount);
+        lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "Withdrawn by: " + ChatColor.GREEN + player.getName());
         meta.setLore(lore);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);

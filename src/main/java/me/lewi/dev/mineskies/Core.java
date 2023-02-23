@@ -31,7 +31,7 @@ public final class Core extends JavaPlugin {
         this.notes = mongoHandler.getNotes();
 
         this.getServer().getPluginManager().registerEvents(new noteListener(this), this);
-        this.getServer().getPluginManager().registerEvents(new onJoinListener(new UserManager(this)), this);
+        this.getServer().getPluginManager().registerEvents(new onJoinListener(this), this);
 
         this.getCommand("crystals").setExecutor(new CrystalCommand(this));
         this.getCommand("minecoins").setExecutor(new MinecoinCommands(this));
